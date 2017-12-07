@@ -22,7 +22,7 @@
             android:layout_height="@dimen/iconHeight"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            android:src="@drawable/gift1" />
+            android:src="@drawable/gift1" android:contentDescription="TODO"/>
 
         <ImageView
             android:id="@+id/gift2"

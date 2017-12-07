@@ -15,6 +15,13 @@ buildscript {
     }
 }
 
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 allprojects {
     repositories {
         google()

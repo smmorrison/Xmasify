@@ -2,5 +2,7 @@
 <resources>
     <dimen name="iconWidth">0px</dimen>
     <dimen name="iconHeight">0px</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>
 
