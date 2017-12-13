@@ -5,16 +5,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.Image
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.ImageView
 
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -24,7 +21,6 @@ import com.spotify.sdk.android.player.ConnectionStateCallback
 import com.spotify.sdk.android.player.Connectivity
 import com.spotify.sdk.android.player.Error
 import com.spotify.sdk.android.player.Metadata
-import com.spotify.sdk.android.player.PlaybackBitrate
 import com.spotify.sdk.android.player.PlaybackState
 import com.spotify.sdk.android.player.Player
 import com.spotify.sdk.android.player.PlayerEvent
@@ -34,74 +30,37 @@ import com.spotify.sdk.android.player.SpotifyPlayer
 
 class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionStateCallback {
 
-    /**
-     * The player used by this activity. There is only ever one instance of the player,
-     * which is owned by the [com.spotify.sdk.android.player.Spotify] class and refcounted.
-     * This means that you may use the Player from as many Fragments as you want, and be
-     * assured that state remains consistent between them.
-     *
-     *
-     * However, each fragment, activity, or helper class **must** call
-     * [com.spotify.sdk.android.player.Spotify.destroyPlayer] when they are no longer
-     * need that player. Failing to do so will result in leaked resources.
-     */
-    private var mPlayer: SpotifyPlayer? = null
-
-    private var mCurrentPlaybackState: PlaybackState? = null
-
-    /**
-     * Used to get notifications from the system about the current network state in order
-     * to pass them along to
-     * [SpotifyPlayer.setConnectivityStatus]
-     * Note that this implies <pre>android.permission.ACCESS_NETWORK_STATE</pre> must be
-     * declared in the manifest. Not setting the correct network state in the SDK may
-     * result in strange behavior.
-     */
-    private var mNetworkStateReceiver: BroadcastReceiver? = null
-
-    /**
-     * Used to log messages to a [android.widget.TextView] in this activity.
-     */
-    private var mStatusText: TextView? = null
-
-    private var mMetadataText: TextView? = null
-
-    private var mSeekEditText: EditText? = null
+    private var player: SpotifyPlayer? = null
+    private var currentPlaybackState: PlaybackState? = null
+    private var networkStateReceiver: BroadcastReceiver? = null
 
     /**
      * Used to scroll the [.mStatusText] to the bottom after updating text.
      */
-    private var mStatusTextScrollView: ScrollView? = null
     private var mMetadata: Metadata? = null
 
-    private val mOperationCallback = object : Player.OperationCallback {
+    private val operationCallback = object : Player.OperationCallback {
         override fun onSuccess() {
-            logStatus("OK!")
+            Log.d("TAG", "OK")
         }
 
         override fun onError(error: Error) {
-            logStatus("ERROR:" + error)
+            Log.d("TAG", "ERROR:" + error)
         }
     }
 
-    private val isLoggedIn: Boolean
-        get() = mPlayer != null && mPlayer!!.isLoggedIn
+    val isLoggedIn: Boolean
+        get() = player != null && player!!.isLoggedIn
 
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_demo)
-
-        // Get a reference to any UI widgets that we'll need to use later
-        mStatusText = findViewById<View>(R.id.status_text) as TextView
-        mMetadataText = findViewById<View>(R.id.metadata) as TextView
-        mSeekEditText = findViewById<View>(R.id.seek_edittext) as EditText
-        mStatusTextScrollView = findViewById<View>(R.id.status_text_container) as ScrollView
+        setContentView(R.layout.activity_specific_day)
 
         updateView()
-        logStatus("Ready")
+        Log.d("TAG", "Ready")
     }
 
     override fun onResume() {
@@ -109,22 +68,22 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
 
         // Set up the broadcast receiver for network events. Note that we also unregister
         // this receiver again in onPause().
-        mNetworkStateReceiver = object : BroadcastReceiver() {
+        networkStateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (mPlayer != null) {
+                if (player != null) {
                     val connectivity = getNetworkConnectivity(baseContext)
-                    logStatus("Network state changed: " + connectivity.toString())
-                    mPlayer!!.setConnectivityStatus(mOperationCallback, connectivity)
+                    Log.d("TAG", "Network state changed: " + connectivity.toString())
+                    player!!.setConnectivityStatus(operationCallback, connectivity)
                 }
             }
         }
 
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        registerReceiver(mNetworkStateReceiver, filter)
+        registerReceiver(networkStateReceiver, filter)
 
-        if (mPlayer != null) {
-            mPlayer!!.addNotificationCallback(this@SpecificDayActivity)
-            mPlayer!!.addConnectionStateCallback(this@SpecificDayActivity)
+        if (player != null) {
+            player!!.addNotificationCallback(this@SpecificDayActivity)
+            player!!.addConnectionStateCallback(this@SpecificDayActivity)
         }
     }
 
@@ -166,40 +125,40 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
                 AuthenticationResponse.Type.TOKEN -> onAuthenticationComplete(response)
 
             // Auth flow returned an error
-                AuthenticationResponse.Type.ERROR -> logStatus("Auth error: " + response.error)
+                AuthenticationResponse.Type.ERROR -> Log.d("TAG", "Auth error: " + response.error)
 
             // Most likely auth flow was cancelled
-                else -> logStatus("Auth result: " + response.type)
+                else -> Log.d("TAG", "Auth result: " + response.type)
             }
         }
     }
 
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
         // Once we have obtained an authorization token, we can proceed with creating a Player.
-        logStatus("Got authentication token")
-        if (mPlayer == null) {
+        Log.d("TAG", "Got authentication token")
+        if (player == null) {
             val playerConfig = Config(applicationContext, authResponse.accessToken, CLIENT_ID)
             // Since the Player is a static singleton owned by the Spotify class, we pass "this" as
             // the second argument in order to refcount it properly. Note that the method
             // Spotify.destroyPlayer() also takes an Object argument, which must be the same as the
             // one passed in here. If you pass different instances to Spotify.getPlayer() and
             // Spotify.destroyPlayer(), that will definitely result in resource leaks.
-            mPlayer = Spotify.getPlayer(playerConfig, this, object : SpotifyPlayer.InitializationObserver {
+            player = Spotify.getPlayer(playerConfig, this, object : SpotifyPlayer.InitializationObserver {
                 override fun onInitialized(player: SpotifyPlayer) {
-                    logStatus("-- Player initialized --")
-                    mPlayer!!.setConnectivityStatus(mOperationCallback, getNetworkConnectivity(this@SpecificDayActivity))
-                    mPlayer!!.addNotificationCallback(this@SpecificDayActivity)
-                    mPlayer!!.addConnectionStateCallback(this@SpecificDayActivity)
+                    Log.d("TAG", "-- Player initialized --")
+                    this@SpecificDayActivity.player!!.setConnectivityStatus(operationCallback, getNetworkConnectivity(this@SpecificDayActivity))
+                    this@SpecificDayActivity.player!!.addNotificationCallback(this@SpecificDayActivity)
+                    this@SpecificDayActivity.player!!.addConnectionStateCallback(this@SpecificDayActivity)
                     // Trigger UI refresh
                     updateView()
                 }
 
                 override fun onError(error: Throwable) {
-                    logStatus("Error in initialization: " + error.message)
+                    Log.d("TAG", "Error in initialization: " + error.message)
                 }
             })
         } else {
-            mPlayer!!.login(authResponse.accessToken)
+            player!!.login(authResponse.accessToken)
         }
     }
 
@@ -217,14 +176,9 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
         }
 
         // Same goes for the playing state
-        val playing = loggedIn && mCurrentPlaybackState != null && mCurrentPlaybackState!!.isPlaying
-        for (id in REQUIRES_PLAYING_STATE) {
-            findViewById<View>(id).isEnabled = playing
-        }
+        val playing = loggedIn && currentPlaybackState != null && currentPlaybackState!!.isPlaying
 
         if (mMetadata != null) {
-            findViewById<View>(R.id.skip_next_button).isEnabled = mMetadata!!.nextTrack != null
-            findViewById<View>(R.id.skip_prev_button).isEnabled = mMetadata!!.prevTrack != null
             findViewById<View>(R.id.pause_button).isEnabled = mMetadata!!.currentTrack != null
         }
 
@@ -233,10 +187,10 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
 
     fun onLoginButtonClicked(view: View) {
         if (!isLoggedIn) {
-            logStatus("Logging in")
+            Log.d("TAG", "Logging in")
             openLoginWindow()
         } else {
-            mPlayer!!.logout()
+            player!!.logout()
         }
     }
 
@@ -248,89 +202,92 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
      */
     fun onPlayButtonClicked(view: View) {
 
+        var gridId = getIntent().getStringExtra("EXTRA")
+
+        val imageView1 = findViewById<View>(R.id.gift1) as ImageView
+        val imageView2 = findViewById<View>(R.id.gift2) as ImageView
+        val imageView3 = findViewById<View>(R.id.gift3) as ImageView
+        val imageView4 = findViewById<View>(R.id.gift4) as ImageView
+        val imageView5 = findViewById<View>(R.id.gift5) as ImageView
+        val imageView6 = findViewById<View>(R.id.gift6) as ImageView
+        val imageView7 = findViewById<View>(R.id.gift7) as ImageView
+        val imageView8 = findViewById<View>(R.id.gift8) as ImageView
+        val imageView9 = findViewById<View>(R.id.gift9) as ImageView
+        val imageView10 = findViewById<View>(R.id.gift10) as ImageView
+        val imageView11 = findViewById<View>(R.id.gift11) as ImageView
+        val imageView12 = findViewById<View>(R.id.gift12) as ImageView
+        val imageView13 = findViewById<View>(R.id.gift13) as ImageView
+        val imageView14 = findViewById<View>(R.id.gift14) as ImageView
+        val imageView15 = findViewById<View>(R.id.gift15) as ImageView
+        val imageView16 = findViewById<View>(R.id.gift16) as ImageView
+        val imageView17 = findViewById<View>(R.id.gift17) as ImageView
+        val imageView18 = findViewById<View>(R.id.gift18) as ImageView
+        val imageView19 = findViewById<View>(R.id.gift19) as ImageView
+        val imageView20 = findViewById<View>(R.id.gift20) as ImageView
+        val imageView21 = findViewById<View>(R.id.gift21) as ImageView
+        val imageView22 = findViewById<View>(R.id.gift22) as ImageView
+        val imageView23 = findViewById<View>(R.id.gift23) as ImageView
+        val imageView24 = findViewById<View>(R.id.gift24) as ImageView
+
+
+
+
         val uri: String
         when (view.id) {
-            R.id.play_track_button -> uri = TEST_SONG_URI
-            R.id.play_mono_track_button -> uri = TEST_SONG_MONO_URI
-            R.id.play_48khz_track_button -> uri = TEST_SONG_48kHz_URI
-            R.id.play_playlist_button -> uri = TEST_PLAYLIST_URI
-            R.id.play_album_button -> uri = TEST_ALBUM_URI
+            R.id.play_song_button -> uri = TEST_SONG_URI
             else -> throw IllegalArgumentException("View ID does not have an associated URI to play")
         }
 
-        logStatus("Starting playback for " + uri)
-        mPlayer!!.playUri(mOperationCallback, uri, 0, 0)
+        Log.d("TAG", "Starting playback for " + uri)
+        player!!.playUri(operationCallback, uri, 0, 0)
     }
 
     fun onPauseButtonClicked(view: View) {
-        if (mCurrentPlaybackState != null && mCurrentPlaybackState!!.isPlaying) {
-            mPlayer!!.pause(mOperationCallback)
+        if (currentPlaybackState != null && currentPlaybackState!!.isPlaying) {
+            player!!.pause(operationCallback)
         } else {
-            mPlayer!!.resume(mOperationCallback)
+            player!!.resume(operationCallback)
         }
     }
 
 
 
     override fun onLoggedIn() {
-        logStatus("Login complete")
+        Log.d("TAG", "Login complete")
         updateView()
     }
 
     override fun onLoggedOut() {
-        logStatus("Logout complete")
+        Log.d("TAG", "Logout complete")
         updateView()
     }
 
     override fun onLoginFailed(error: Error) {
-        logStatus("Login error " + error)
+        Log.d("TAG", "Login error " + error)
     }
 
     override fun onTemporaryError() {
-        logStatus("Temporary error occurred")
+        Log.d("TAG", "Temporary error occurred")
     }
 
     override fun onConnectionMessage(message: String) {
-        logStatus("Incoming connection message: " + message)
+        Log.d("TAG", "Incoming connection message: " + message)
     }
-
-
-
-
-
-    /**
-     * Print a status message from a callback (or some other place) to the TextView in this
-     * activity
-     *
-     * @param status Status message
-     */
-    private fun logStatus(status: String) {
-        Log.i(TAG, status)
-        if (!TextUtils.isEmpty(mStatusText!!.text)) {
-            mStatusText!!.append("\n")
-        }
-        mStatusText!!.append(">>>" + status)
-        mStatusTextScrollView!!.post {
-            // Scroll to the bottom
-            mStatusTextScrollView!!.fullScroll(View.FOCUS_DOWN)
-        }
-    }
-
 
 
 
     override fun onPause() {
         super.onPause()
-        unregisterReceiver(mNetworkStateReceiver)
+        unregisterReceiver(networkStateReceiver)
 
         // Note that calling Spotify.destroyPlayer() will also remove any callbacks on whatever
         // instance was passed as the refcounted owner. So in the case of this particular example,
         // it's not strictly necessary to call these methods, however it is generally good practice
         // and also will prevent your application from doing extra work in the background when
         // paused.
-        if (mPlayer != null) {
-            mPlayer!!.removeNotificationCallback(this@SpecificDayActivity)
-            mPlayer!!.removeConnectionStateCallback(this@SpecificDayActivity)
+        if (player != null) {
+            player!!.removeNotificationCallback(this@SpecificDayActivity)
+            player!!.removeConnectionStateCallback(this@SpecificDayActivity)
         }
     }
 
@@ -348,32 +305,28 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
         // Remember kids, always use the English locale when changing case for non-UI strings!
         // Otherwise you'll end up with mysterious errors when running in the Turkish locale.
         // See: http://java.sys-con.com/node/46241
-        logStatus("Event: " + event)
-        mCurrentPlaybackState = mPlayer!!.playbackState
-        mMetadata = mPlayer!!.metadata
-        Log.i(TAG, "Player state: " + mCurrentPlaybackState!!)
+        Log.d("TAG", "Event: " + event)
+        currentPlaybackState = player!!.playbackState
+        mMetadata = player!!.metadata
+        Log.i(TAG, "Player state: " + currentPlaybackState!!)
         Log.i(TAG, "Metadata: " + mMetadata!!)
         updateView()
     }
 
     override fun onPlaybackError(error: Error) {
-        logStatus("Err: " + error)
+        Log.d("TAG", "Error: " + error)
     }
 
     companion object {
 
 
 
-
-        private val CLIENT_ID = "089d841ccc194c10a77afad9e1c11d54"
-        private val REDIRECT_URI = "testschema://callback"
+        private val CLIENT_ID = "9edc6aaf7f66422f9cbef9e093fa5aed"
+        private val REDIRECT_URI = "xmasify://callback"
 
         private val TEST_SONG_URI = "spotify:track:0JoLc8rgQBJhDMolSCuRuw" //<-Jingle Bell Rock
-        private val TEST_SONG_MONO_URI = "spotify:track:1FqY3uJypma5wkYw66QOUi"
-        private val TEST_SONG_48kHz_URI = "spotify:track:3wxTNS3aqb9RbBLZgJdZgH"
-        private val TEST_PLAYLIST_URI = "spotify:user:spotify:playlist:2yLXxKhhziG2xzy7eyD4TD"
-        private val TEST_ALBUM_URI = "spotify:album:2lYmxilk8cXJlxxXmns1IU"
-        private val TEST_QUEUE_SONG_URI = "spotify:track:5EEOjaJyWvfMglmEwf9bG3"
+        private val TEST_SONG_URI_1 = "spotify:track:0JoLc8rgQBJhDMolSCuRuw" //<-Jingle Bell Rock
+
 
         /**
          * Request code that will be passed together with authentication result to the onAuthenticationResult
@@ -384,12 +337,11 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
          * UI controls which may only be enabled after the player has been initialized,
          * (or effectively, after the user has logged in).
          */
-        private val REQUIRES_INITIALIZED_STATE = intArrayOf(R.id.play_track_button, R.id.play_mono_track_button, R.id.play_48khz_track_button, R.id.play_album_button, R.id.play_playlist_button, R.id.pause_button, R.id.seek_button, R.id.low_bitrate_button, R.id.normal_bitrate_button, R.id.high_bitrate_button, R.id.seek_edittext)
+        private val REQUIRES_INITIALIZED_STATE = intArrayOf(R.id.play_song_button, R.id.pause_button)
 
         /**
          * UI controls which should only be enabled if the player is actively playing.
          */
-        private val REQUIRES_PLAYING_STATE = intArrayOf(R.id.skip_next_button, R.id.skip_prev_button, R.id.queue_song_button, R.id.toggle_shuffle_button, R.id.toggle_repeat_button)
         val TAG = "SpotifySdkDemo"
     }
 }

@@ -8,13 +8,15 @@
     tools:context="com.example.samanthamorrison.xmasify.MainActivity">
 
 
+
+
     <GridLayout
+        android:id="@+id/grid_layout"
         android:alignmentMode="alignBounds"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:rowCount="6"
         android:columnCount="4">
-
 
         <ImageView
             android:id="@+id/gift1"
