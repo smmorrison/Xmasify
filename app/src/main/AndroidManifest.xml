@@ -20,7 +20,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".SpecificDayActivity"></activity>
-        <activity android:name=".LoginActivity"></activity>
 
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"

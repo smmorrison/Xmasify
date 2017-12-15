@@ -2,10 +2,10 @@ package com.example.samanthamorrison.xmasify
 
 import android.app.Activity
 import android.content.BroadcastReceiver
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.Image
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
@@ -30,6 +30,8 @@ import com.spotify.sdk.android.player.SpotifyPlayer
 
 class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionStateCallback {
 
+    var sdkHelper = SDKHelper()
+
     private var player: SpotifyPlayer? = null
     private var currentPlaybackState: PlaybackState? = null
     private var networkStateReceiver: BroadcastReceiver? = null
@@ -51,7 +53,6 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
 
     val isLoggedIn: Boolean
         get() = player != null && player!!.isLoggedIn
-
 
 
 
@@ -107,18 +108,18 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
 
 
     private fun openLoginWindow() {
-        val request = AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+        val request = AuthenticationRequest.Builder(sdkHelper.CLIENT_ID, AuthenticationResponse.Type.TOKEN, sdkHelper.REDIRECT_URI)
                 .setScopes(arrayOf("user-read-private", "playlist-read", "playlist-read-private", "streaming"))
                 .build()
 
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request)
+        AuthenticationClient.openLoginActivity(this, sdkHelper.REQUEST_CODE, request)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent) {
         super.onActivityResult(requestCode, resultCode, intent)
 
         // Check if result comes from the correct activity
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == sdkHelper.REQUEST_CODE) {
             val response = AuthenticationClient.getResponse(resultCode, intent)
             when (response.type) {
             // Response was successful and contains auth token
@@ -134,18 +135,18 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
     }
 
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
-        // Once we have obtained an authorization token, we can proceed with creating a Player.
+        // Once we have obtained an authorization token, we can proceed with creating a SDKHelper.
         Log.d("TAG", "Got authentication token")
         if (player == null) {
-            val playerConfig = Config(applicationContext, authResponse.accessToken, CLIENT_ID)
-            // Since the Player is a static singleton owned by the Spotify class, we pass "this" as
+            val playerConfig = Config(applicationContext, authResponse.accessToken, sdkHelper.CLIENT_ID)
+            // Since the SDKHelper is a static singleton owned by the Spotify class, we pass "this" as
             // the second argument in order to refcount it properly. Note that the method
             // Spotify.destroyPlayer() also takes an Object argument, which must be the same as the
             // one passed in here. If you pass different instances to Spotify.getPlayer() and
             // Spotify.destroyPlayer(), that will definitely result in resource leaks.
             player = Spotify.getPlayer(playerConfig, this, object : SpotifyPlayer.InitializationObserver {
                 override fun onInitialized(player: SpotifyPlayer) {
-                    Log.d("TAG", "-- Player initialized --")
+                    Log.d("TAG", "-- SDKHelper initialized --")
                     this@SpecificDayActivity.player!!.setConnectivityStatus(operationCallback, getNetworkConnectivity(this@SpecificDayActivity))
                     this@SpecificDayActivity.player!!.addNotificationCallback(this@SpecificDayActivity)
                     this@SpecificDayActivity.player!!.addConnectionStateCallback(this@SpecificDayActivity)
@@ -171,12 +172,15 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
         loginButton.setText(if (loggedIn) R.string.logout_button_label else R.string.login_button_label)
 
         // Set enabled for all widgets which depend on initialized state
-        for (id in REQUIRES_INITIALIZED_STATE) {
+        for (id in sdkHelper.REQUIRES_INITIALIZED_STATE) {
             findViewById<View>(id).isEnabled = loggedIn
         }
 
         // Same goes for the playing state
         val playing = loggedIn && currentPlaybackState != null && currentPlaybackState!!.isPlaying
+        /*for (id in sdkHelper.REQUIRES_PLAYING_STATE) {
+            findViewById<ImageView>(id).isEnabled = playing
+        }*/
 
         if (mMetadata != null) {
             findViewById<View>(R.id.pause_button).isEnabled = mMetadata!!.currentTrack != null
@@ -195,52 +199,18 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
     }
 
 
-
-
-    /**
-    Gör en when() (switchsats) här som spelar upp olika låtar beroende på vilken lucka som öppnats
-     */
-    fun onPlayButtonClicked(view: View) {
-
-        var gridId = getIntent().getStringExtra("EXTRA")
-
-        val imageView1 = findViewById<View>(R.id.gift1) as ImageView
-        val imageView2 = findViewById<View>(R.id.gift2) as ImageView
-        val imageView3 = findViewById<View>(R.id.gift3) as ImageView
-        val imageView4 = findViewById<View>(R.id.gift4) as ImageView
-        val imageView5 = findViewById<View>(R.id.gift5) as ImageView
-        val imageView6 = findViewById<View>(R.id.gift6) as ImageView
-        val imageView7 = findViewById<View>(R.id.gift7) as ImageView
-        val imageView8 = findViewById<View>(R.id.gift8) as ImageView
-        val imageView9 = findViewById<View>(R.id.gift9) as ImageView
-        val imageView10 = findViewById<View>(R.id.gift10) as ImageView
-        val imageView11 = findViewById<View>(R.id.gift11) as ImageView
-        val imageView12 = findViewById<View>(R.id.gift12) as ImageView
-        val imageView13 = findViewById<View>(R.id.gift13) as ImageView
-        val imageView14 = findViewById<View>(R.id.gift14) as ImageView
-        val imageView15 = findViewById<View>(R.id.gift15) as ImageView
-        val imageView16 = findViewById<View>(R.id.gift16) as ImageView
-        val imageView17 = findViewById<View>(R.id.gift17) as ImageView
-        val imageView18 = findViewById<View>(R.id.gift18) as ImageView
-        val imageView19 = findViewById<View>(R.id.gift19) as ImageView
-        val imageView20 = findViewById<View>(R.id.gift20) as ImageView
-        val imageView21 = findViewById<View>(R.id.gift21) as ImageView
-        val imageView22 = findViewById<View>(R.id.gift22) as ImageView
-        val imageView23 = findViewById<View>(R.id.gift23) as ImageView
-        val imageView24 = findViewById<View>(R.id.gift24) as ImageView
-
-
-
+  fun onPlayButtonClicked(view: View) {
 
         val uri: String
         when (view.id) {
-            R.id.play_song_button -> uri = TEST_SONG_URI
+            R.id.play_track_button -> uri = sdkHelper.TRACK_1
             else -> throw IllegalArgumentException("View ID does not have an associated URI to play")
         }
 
         Log.d("TAG", "Starting playback for " + uri)
         player!!.playUri(operationCallback, uri, 0, 0)
     }
+
 
     fun onPauseButtonClicked(view: View) {
         if (currentPlaybackState != null && currentPlaybackState!!.isPlaying) {
@@ -249,7 +219,6 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
             player!!.resume(operationCallback)
         }
     }
-
 
 
     override fun onLoggedIn() {
@@ -308,7 +277,7 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
         Log.d("TAG", "Event: " + event)
         currentPlaybackState = player!!.playbackState
         mMetadata = player!!.metadata
-        Log.i(TAG, "Player state: " + currentPlaybackState!!)
+        Log.i(TAG, "SDKHelper state: " + currentPlaybackState!!)
         Log.i(TAG, "Metadata: " + mMetadata!!)
         updateView()
     }
@@ -317,31 +286,4 @@ class SpecificDayActivity : Activity(), Player.NotificationCallback, ConnectionS
         Log.d("TAG", "Error: " + error)
     }
 
-    companion object {
-
-
-
-        private val CLIENT_ID = "9edc6aaf7f66422f9cbef9e093fa5aed"
-        private val REDIRECT_URI = "xmasify://callback"
-
-        private val TEST_SONG_URI = "spotify:track:0JoLc8rgQBJhDMolSCuRuw" //<-Jingle Bell Rock
-        private val TEST_SONG_URI_1 = "spotify:track:0JoLc8rgQBJhDMolSCuRuw" //<-Jingle Bell Rock
-
-
-        /**
-         * Request code that will be passed together with authentication result to the onAuthenticationResult
-         */
-        private val REQUEST_CODE = 1337
-
-        /**
-         * UI controls which may only be enabled after the player has been initialized,
-         * (or effectively, after the user has logged in).
-         */
-        private val REQUIRES_INITIALIZED_STATE = intArrayOf(R.id.play_song_button, R.id.pause_button)
-
-        /**
-         * UI controls which should only be enabled if the player is actively playing.
-         */
-        val TAG = "SpotifySdkDemo"
-    }
 }

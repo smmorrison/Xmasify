@@ -1,25 +1,40 @@
 package com.example.samanthamorrison.xmasify
 
-import android.content.Intent
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.GridLayout
-import android.widget.ImageView
-import android.widget.RelativeLayout
+class SDKHelper : Any() {
+
+
+    val TEST_SONG_URI = "spotify:track:5rgStA2VSw8K6jragj6yBx"
+    val CLIENT_ID = "9edc6aaf7f66422f9cbef9e093fa5aed"
+    val REDIRECT_URI = "xmasify://callback"
+
+    val TRACK_1 = "spotify:track:5rgStA2VSw8K6jragj6yBx"
+    val TRACK_3 = "spotify:track:7brBzTFzUzxwKNXbyS5sN2"
+
+
+    /**
+     * Request code that will be passed together with authentication result to the onAuthenticationResult
+     */
+    val REQUEST_CODE = 1337
+
+    /**
+     * UI controls which may only be enabled after the player has been initialized,
+     * (or effectively, after the user has logged in).
+     */
+    val REQUIRES_INITIALIZED_STATE = intArrayOf(R.id.play_track_button, R.id.pause_button)
+
+    val REQUIRES_PLAYING_STATE = intArrayOf(R.id.gift1, R.id.gift2, R.id.gift3, R.id.gift4, R.id.gift5, R.id.gift6, R.id.gift7, R.id.gift8, R.id.gift9, R.id.gift10)
 
 
 
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+}
 
 
 
-        val imageView = findViewById<View>(R.id.gift1) as ImageView
+/*var gridId = getIntent().getStringExtra("EXTRA")
+
+    var id
+
+        val imageView1 = findViewById<View>(R.id.gift1) as ImageView
         val imageView2 = findViewById<View>(R.id.gift2) as ImageView
         val imageView3 = findViewById<View>(R.id.gift3) as ImageView
         val imageView4 = findViewById<View>(R.id.gift4) as ImageView
@@ -44,22 +59,4 @@ class MainActivity : AppCompatActivity() {
         val imageView23 = findViewById<View>(R.id.gift23) as ImageView
         val imageView24 = findViewById<View>(R.id.gift24) as ImageView
 
-
-        val grid = findViewById<GridLayout>(R.id.grid_layout)
-        val childCount = grid.childCount
-        for (i in 0 until childCount) {
-            val window = grid.getChildAt(i) as ImageView
-            window.setOnClickListener {
-                val intent = Intent (this, SpecificDayActivity::class.java)
-                intent.putExtra("WINDOW_ID", childCount)
-                Log.d("TAG", "WINDOW" + window)
-
-                startActivity(intent)
-            }
-        }
-
-    }
-
-}
-
-
+*/

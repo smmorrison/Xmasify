@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">xMasify</string>
-    <string name="login_button_label">Login</string>
-    <string name="logout_button_label">Logout</string>
+    <string name="login_button_label">Logga in (Autentisering)</string>
+    <string name="logout_button_label">Logga ut</string>
     <string name="play_track_button_label">Julboosta</string>
-    <string name="pause_button_label_toggle">Pause/Resume</string>
-    <string name="welcome_text">Logga in för att upptäcka julglädjen</string>
+    <string name="pause_button_label_toggle">Pausa/Reboosta</string>
 </resources>

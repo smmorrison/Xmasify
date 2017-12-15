@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.samanthamorrison.xmasify.MainActivity">
+
+
+
+
+    <GridLayout
+        android:id="@+id/grid_layout"
+        android:alignmentMode="alignBounds"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:rowCount="6"
+        android:columnCount="4">
+
+        <ImageView
+            android:id="@+id/gift1"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift1"/>
+
+        <ImageView
+            android:id="@+id/gift2"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift2" />
+
+        <ImageView
+            android:id="@+id/gift3"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift3" />
+
+        <ImageView
+            android:id="@+id/gift4"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift4" />
+
+        <ImageView
+            android:id="@+id/gift5"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift5" />
+
+        <ImageView
+            android:id="@+id/gift6"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift6" />
+
+        <ImageView
+            android:id="@+id/gift7"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift7" />
+
+        <ImageView
+            android:id="@+id/gift8"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift8" />
+
+        <ImageView
+            android:id="@+id/gift9"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift9" />
+
+        <ImageView
+            android:id="@+id/gift10"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift10" />
+
+        <ImageView
+            android:id="@+id/gift11"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift11" />
+
+        <ImageView
+            android:id="@+id/gift12"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift12" />
+
+        <ImageView
+            android:id="@+id/gift13"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift13" />
+
+        <ImageView
+            android:id="@+id/gift14"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift14" />
+
+        <ImageView
+            android:id="@+id/gift15"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift15" />
+
+        <ImageView
+            android:id="@+id/gift16"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift16" />
+
+        <ImageView
+            android:id="@+id/gift17"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift17" />
+
+        <ImageView
+            android:id="@+id/gift18"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift18" />
+
+        <ImageView
+            android:id="@+id/gift19"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift19" />
+
+        <ImageView
+            android:id="@+id/gift20"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift20" />
+
+        <ImageView
+            android:id="@+id/gift21"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift21" />
+
+        <ImageView
+            android:id="@+id/gift22"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift22" />
+
+        <ImageView
+            android:id="@+id/gift23"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift23" />
+
+        <ImageView
+            android:id="@+id/gift24"
+            android:layout_width="@dimen/iconWidth"
+            android:layout_height="@dimen/iconHeight"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:src="@drawable/gift24" />
+
+
+    </GridLayout>
+
+
+
+</android.support.constraint.ConstraintLayout>
+
